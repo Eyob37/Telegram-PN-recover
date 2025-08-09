@@ -1,5 +1,7 @@
 // sw.js
-self.addEventListener("notificationclick", function(event) {
-    event.notification.close();
-    // Optional: Do something when notification is clicked
+self.addEventListener('notificationclick', function(event) {
+  event.notification.close();
+  event.waitUntil(
+    clients.openWindow('/') // or your app URL
+  );
 });
