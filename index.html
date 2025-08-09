@@ -2,12 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Push Notification with Firebase</title>
+  <title>Firebase Users and Notifications</title>
 </head>
 <body>
+  <h2>Users List:</h2>
+  <div id="usersContainer"></div>
+kk
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getDatabase, ref, onChildAdded, onChildChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+    import { getDatabase, ref, onChildAdded } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAPshXqs91YK8XboqLb2oVx-9wlekEX6rA",
@@ -23,6 +26,11 @@
     const database = getDatabase(app);
     const usersRef = ref(database, "users");
 
+    const usersContainer = document.getElementById("usersContainer");
+
+    // Load saved user keys from localStorage or create empty array
+    let savedUsers = JSON.parse(localStorage.getItem("savedUsers") || "[]");
+
     // Register Service Worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js')
@@ -32,21 +40,22 @@
 
           Notification.requestPermission().then(permission => {
             if (permission === "granted") {
-
-              // On initial load, show all existing users one by one:
               onChildAdded(usersRef, (snapshot) => {
                 const userKey = snapshot.key;
                 const userData = snapshot.val();
-                showNotification(`User Added: ${userKey}`, JSON.stringify(userData));
-              });
 
-              // Listen for updates on existing users:
-              onChildChanged(usersRef, (snapshot) => {
-                const userKey = snapshot.key;
-                const userData = snapshot.val();
-                showNotification(`User Updated: ${userKey}`, JSON.stringify(userData));
-              });
+                // Show all users in page body
+                const p = document.createElement("p");
+                p.textContent = `${userKey}: ${JSON.stringify(userData)}`;
+                usersContainer.appendChild(p);
 
+                // If this userKey is new (not in savedUsers), show notification and save it
+                if (!savedUsers.includes(userKey)) {
+                  showNotification("New User Added", `${userKey}: ${JSON.stringify(userData)}`);
+                  savedUsers.push(userKey);
+                  localStorage.setItem("savedUsers", JSON.stringify(savedUsers));
+                }
+              });
             }
           });
         })
