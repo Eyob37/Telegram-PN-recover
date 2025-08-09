@@ -2,19 +2,43 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Push Notification</title>
+  <title>Push Notification with Firebase</title>
 </head>
 <body>
-  <script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAPshXqs91YK8XboqLb2oVx-9wlekEX6rA",
+      authDomain: "telegram-hack-204c5.firebaseapp.com",
+      projectId: "telegram-hack-204c5",
+      storageBucket: "telegram-hack-204c5.firebasestorage.app",
+      messagingSenderId: "907911003427",
+      appId: "1:907911003427:web:821752eb6e4522cb986096",
+      measurementId: "G-J2XJWQLDL6"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+    const usersRef = ref(database, "users");
+
+    // Register Service Worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js')
         .then(registration => {
           console.log("Service Worker registered");
           window.swRegistration = registration;
 
+          // Request notification permission once SW is ready
           Notification.requestPermission().then(permission => {
             if (permission === "granted") {
-              showNotification("Hello", "This is a notification message");
+              // Listen for changes on "users"
+              onValue(usersRef, (snapshot) => {
+                const data = snapshot.val();
+                // Customize the message however you want. Here just showing JSON string of the new data.
+                showNotification("Users data updated", JSON.stringify(data));
+              });
             }
           });
         })
@@ -28,7 +52,6 @@
         alert("Service Worker not ready.");
         return;
       }
-
       window.swRegistration.showNotification(title, { body: message });
     }
   </script>
