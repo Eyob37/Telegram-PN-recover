@@ -1,52 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Page title</title>
+  <meta charset="UTF-8" />
+  <title>Push Notification</title>
 </head>
 <body>
-    <script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js')
+        .then(registration => {
+          console.log("Service Worker registered");
+          window.swRegistration = registration;
 
-if ('serviceWorker' in navigator) {
-   navigator.serviceWorker.register('sw.js').then(registration => {
-      console.log("Service Worker registered");
-      window.swRegistration = registration;
-   }).catch(err => {
-      alert("Service Worker registration failed: " + err);
-   });
-} else {
-   alert("Service Workers are not supported in this browser.");
-}
+          Notification.requestPermission().then(permission => {
+            if (permission === "granted") {
+              showNotification("Hello", "This is a notification message");
+            }
+          });
+        })
+        .catch(err => alert("Service Worker registration failed: " + err));
+    } else {
+      alert("Service Workers are not supported.");
+    }
 
+    function showNotification(title, message) {
+      if (!window.swRegistration) {
+        alert("Service Worker not ready.");
+        return;
+      }
 
-function showNotification(Uname, messag) {           
-   if (!window.swRegistration) {
-      alert("Service Worker not ready.");
-      return;
-   }
-
-   try {
-      window.swRegistration.showNotification(Uname, {
-         body: messag
-      });
-   } catch (error) {
-      alert("Failed to show notification: " + error.message);
-   }
-}
-
-
-                         
-                  if (!("Notification" in window)) {
-
-                  } else {
-                    Notification.requestPermission().then((permission) => {
-                      if (permission === "granted") {
-                        showNotification(`hello`);
-                      }
-                    });
-                  }
-                
-
-   </script>    
+      window.swRegistration.showNotification(title, { body: message });
+    }
+  </script>
 </body>
 </html>
