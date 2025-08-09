@@ -35,17 +35,17 @@ function showNotification(Uname, messag) {
 }
 
 
-                if (index === 0 && lastMessage && lastSender !== currentUserId && !ite) {                  
+                         
                   if (!("Notification" in window)) {
 
                   } else {
                     Notification.requestPermission().then((permission) => {
                       if (permission === "granted") {
-                        showNotification(`${user.name}`, `${lastMessage}`);
+                        showNotification(`hello`);
                       }
                     });
                   }
-                }
+                
 
    </script>    
 </body>
