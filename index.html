@@ -1,1 +1,52 @@
-hello all
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Page title</title>
+</head>
+<body>
+    <script>
+
+if ('serviceWorker' in navigator) {
+   navigator.serviceWorker.register('sw.js').then(registration => {
+      console.log("Service Worker registered");
+      window.swRegistration = registration;
+   }).catch(err => {
+      alert("Service Worker registration failed: " + err);
+   });
+} else {
+   alert("Service Workers are not supported in this browser.");
+}
+
+
+function showNotification(Uname, messag) {           
+   if (!window.swRegistration) {
+      alert("Service Worker not ready.");
+      return;
+   }
+
+   try {
+      window.swRegistration.showNotification(Uname, {
+         body: messag
+      });
+   } catch (error) {
+      alert("Failed to show notification: " + error.message);
+   }
+}
+
+
+                if (index === 0 && lastMessage && lastSender !== currentUserId && !ite) {                  
+                  if (!("Notification" in window)) {
+
+                  } else {
+                    Notification.requestPermission().then((permission) => {
+                      if (permission === "granted") {
+                        showNotification(`${user.name}`, `${lastMessage}`);
+                      }
+                    });
+                  }
+                }
+
+   </script>    
+</body>
+</html>
