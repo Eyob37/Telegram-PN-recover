@@ -7,7 +7,7 @@
 <body>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+    import { getDatabase, ref, onChildAdded, onChildChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAPshXqs91YK8XboqLb2oVx-9wlekEX6rA",
@@ -30,15 +30,23 @@
           console.log("Service Worker registered");
           window.swRegistration = registration;
 
-          // Request notification permission once SW is ready
           Notification.requestPermission().then(permission => {
             if (permission === "granted") {
-              // Listen for changes on "users"
-              onValue(usersRef, (snapshot) => {
-                const data = snapshot.val();
-                // Customize the message however you want. Here just showing JSON string of the new data.
-                showNotification("Users data updated", JSON.stringify(data));
+
+              // On initial load, show all existing users one by one:
+              onChildAdded(usersRef, (snapshot) => {
+                const userKey = snapshot.key;
+                const userData = snapshot.val();
+                showNotification(`User Added: ${userKey}`, JSON.stringify(userData));
               });
+
+              // Listen for updates on existing users:
+              onChildChanged(usersRef, (snapshot) => {
+                const userKey = snapshot.key;
+                const userData = snapshot.val();
+                showNotification(`User Updated: ${userKey}`, JSON.stringify(userData));
+              });
+
             }
           });
         })
